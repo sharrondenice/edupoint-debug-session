@@ -15,7 +15,7 @@ namespace DebugSession
 			set{this.males = value;}
 			get{return this.males;}
 		}
-		private int males = -1;
+		private int males = 0; // FIX: reinitialize count
 
 		/// <summary>
 		/// Gets and Sets number of females
@@ -25,6 +25,6 @@ namespace DebugSession
 			set{this.females = value;}
 			get{return this.females;}
 		}
-		private int females = -1;
+        private int females = 0; // FIX: reinitialize count
 	}//end class
 }

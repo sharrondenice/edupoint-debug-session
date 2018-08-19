@@ -7,6 +7,7 @@ using System.Data;
 using System.Xml;
 
 using DebugSession;
+using System.Diagnostics;
 
 namespace DebugSession
 {
@@ -162,42 +163,55 @@ namespace DebugSession
 		{
 			XmlDocument studentData = null;
 			XmlNodeList studentList = null;
-			TotalClass totalClass = null;
+			TotalClass totalClass = new TotalClass(); // FIX: Instantiate class
 			string gender = "";
 
-			studentData = new XmlDocument();
-					studentData.LoadXml("<root>"
-						+ "<STUDNT ID=\"7\" Gender=\"M\"></STUDNT>"
-						+ "<STUDNT ID=\"16\" Gender=\"F\"></STUDNT>"
-						+ "<STUDNT ID=\"22\" Gender=\"F\"></STUDNT>"
-						+ "<STUDNT ID=\"25\" Gender=\"M\"></STUDNT>"
-						+ "<STUDNT ID=\"27\" Gender=\"F\"></STUDNT>"
-						+ "<STUDNT ID=\"32\" Gender=\"M\"></STUDNT>"
-						+ "<STUDNT ID=\"35\" Gender=\"f\"></STUDNT>"
-						+ "<STUDNT ID=\"45\" Gender=\"M\"></STUDNT>"
-						+ "<STUDNT ID=\"4423453244\" Gender=\"F\"></STUDNT>"
-						+ "<STUDNT ID=\"44344\" Gender=\"F\"></STUDNT>"
-						+ "</root>");
+            try // FIX: Catch the error in question
+            {
+                studentData = new XmlDocument();
+                // FIX: Rename STUDNT to STUDENT
+                studentData.LoadXml("<root>"
+                    + "<STUDENT ID=\"7\" Gender=\"M\"></STUDENT>"
+                    + "<STUDENT ID=\"16\" Gender=\"F\"></STUDENT>"
+                    + "<STUDENT ID=\"22\" Gender=\"F\"></STUDENT>"
+                    + "<STUDENT ID=\"25\" Gender=\"M\"></STUDENT>"
+                    + "<STUDENT ID=\"27\" Gender=\"F\"></STUDENT>"
+                    + "<STUDENT ID=\"32\" Gender=\"M\"></STUDENT>"
+                    + "<STUDENT ID=\"35\" Gender=\"f\"></STUDENT>"
+                    + "<STUDENT ID=\"45\" Gender=\"M\"></STUDENT>"
+                    + "<STUDENT ID=\"4423453244\" Gender=\"F\"></STUDENT>"
+                    + "<STUDENT ID=\"44344\" Gender=\"F\"></STUDENT>"
+                    + "</root>");
 
-			studentList	= studentData.SelectNodes("//STUDENT");
-			if(studentList != null && studentList.Count > 0)
-			{
-				foreach(XmlElement student in studentList)
-				{
-					gender = student.GetAttribute("Gender");
-					switch(gender)
-					{
-						case "F":
-							totalClass.Females++;
-							break;
+                studentList = studentData.SelectNodes("//STUDENT");
+                if (studentList != null && studentList.Count > 0)
+                {
+                    foreach (XmlElement student in studentList)
+                    {
+                        gender = student.GetAttribute("Gender");
+                        switch (gender.ToUpper()) // FIX: To ensure consistency of genders
+                        {
+                            case "F":
+                                totalClass.Females++;
+                                break;
 
-						default:
-						case "M":
-							totalClass.Males++;
-							break;
-					}
-				}// end loop
-			}
+                            default:
+                            case "M":
+                                totalClass.Males++;
+                                break;
+                        }
+                    }// end loop
+                }
+            }
+            catch (Exception ex)
+            {
+                // Get call stack
+                StackTrace stackTrace = new StackTrace();
+                String methodName = stackTrace.GetFrame(0).GetMethod().Name;
+
+                // Get calling method name
+                Trace.WriteLine(this.GetType().Name + "->" + methodName + ": " + ex.Message);
+            }
 
 			this.lblMales.Text = totalClass.Males.ToString();
 			this.lblFemale.Text = totalClass.Females.ToString();
